@@ -1,0 +1,57 @@
+C:/Users/chenguang.zhang/Documents/research/code/new/addr_sel_new.v {1 {vlog -work tpu_new -vopt C:/Users/chenguang.zhang/Documents/research/code/new/addr_sel_new.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module addr_sel
+
+Top level modules:
+	addr_sel
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/new/write_out_new.v {1 {vlog -work tpu_new -vopt C:/Users/chenguang.zhang/Documents/research/code/new/write_out_new.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module write_out
+
+Top level modules:
+	write_out
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/new/systolic_new.v {1 {vlog -work tpu_new -vopt C:/Users/chenguang.zhang/Documents/research/code/new/systolic_new.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module systolic
+
+Top level modules:
+	systolic
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/quantize.v {1 {vlog -work tpu_new -vopt C:/Users/chenguang.zhang/Documents/research/code/quantize.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module quantize
+
+Top level modules:
+	quantize
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/new/tpu_top_new.v {1 {vlog -work tpu_new -vopt C:/Users/chenguang.zhang/Documents/research/code/new/tpu_top_new.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module tpu_top
+
+Top level modules:
+	tpu_top
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/systolic_controll.v {1 {vlog -work tpu_new -vopt C:/Users/chenguang.zhang/Documents/research/code/systolic_controll.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module systolic_controll
+
+Top level modules:
+	systolic_controll
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/sram_256x32b.v {1 {vlog -work tpu_new -vopt C:/Users/chenguang.zhang/Documents/research/code/sram_256x32b.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module sram_128x32b
+
+Top level modules:
+	sram_128x32b
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/sram_16x128b.v {1 {vlog -work tpu_new -vopt C:/Users/chenguang.zhang/Documents/research/code/sram_16x128b.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module sram_16x128b
+
+Top level modules:
+	sram_16x128b
+
+} {} {}}

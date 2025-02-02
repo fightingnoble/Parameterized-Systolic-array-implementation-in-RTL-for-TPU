@@ -1,0 +1,60 @@
+C:/Users/chenguang.zhang/Documents/research/code/tpu_top.v {1 {vlog -work work -vopt C:/Users/chenguang.zhang/Documents/research/code/tpu_top.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module tpu_top
+
+Top level modules:
+	tpu_top
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/test_tpu.v {1 {vlog -work TPU -vopt C:/Users/chenguang.zhang/Documents/research/code/test_tpu.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module test_tpu
+
+Top level modules:
+	test_tpu
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/quantize.v {1 {vlog -work TPU -vopt C:/Users/chenguang.zhang/Documents/research/code/quantize.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module quantize
+
+Top level modules:
+	quantize
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/param.v {1 {vlog -work TPU -vopt C:/Users/chenguang.zhang/Documents/research/code/param.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/sram_16x128b.v {1 {vlog -work work -vopt C:/Users/chenguang.zhang/Documents/research/code/sram_16x128b.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module sram_16x128b
+
+Top level modules:
+	sram_16x128b
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/sram_256x32b.v {1 {vlog -work TPU -vopt C:/Users/chenguang.zhang/Documents/research/code/sram_256x32b.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module sram_128x32b
+
+Top level modules:
+	sram_128x32b
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/addr_sel.v {1 {vlog -work work -vopt C:/Users/chenguang.zhang/Documents/research/code/addr_sel.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module addr_sel
+
+Top level modules:
+	addr_sel
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/systolic_controll.v {1 {vlog -work TPU -vopt C:/Users/chenguang.zhang/Documents/research/code/systolic_controll.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module systolic_controll
+
+Top level modules:
+	systolic_controll
+
+} {} {}} C:/Users/chenguang.zhang/Documents/research/code/write_out.v {1 {vlog -work TPU -vopt C:/Users/chenguang.zhang/Documents/research/code/write_out.v
+Model Technology ModelSim SE vlog 10.1a Compiler 2012.02 Feb 22 2012
+-- Compiling module write_out
+
+Top level modules:
+	write_out
+
+} {} {}}
