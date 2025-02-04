@@ -69,7 +69,7 @@ always@(posedge clk) begin
             for (k = 0; k < (QUEUE_COUNT); k = k + 1) begin
                 for (i = 0; i < QUEUE_SIZE; i = i + 1) begin
                     if (k * QUEUE_SIZE + i < ARRAY_SIZE) begin
-                        weight_queue[0][k * QUEUE_SIZE + i] <= sram_rdata_w[k][(QUEUE_SIZE-1 - k) * WEIGHT_WIDTH +: WEIGHT_WIDTH];
+                        weight_queue[0][k * QUEUE_SIZE + i] <= sram_rdata_w[k][(QUEUE_SIZE-1 - i) * WEIGHT_WIDTH +: WEIGHT_WIDTH];
                     end
                 end
             end
@@ -82,7 +82,7 @@ always@(posedge clk) begin
             for (k = 0; k < (QUEUE_COUNT); k = k + 1) begin
                 for (i = 0; i < QUEUE_SIZE; i = i + 1) begin
                     if (k * QUEUE_SIZE + i < ARRAY_SIZE) begin
-                        data_queue[k * QUEUE_SIZE + i][0] <= sram_rdata_d[k][(QUEUE_SIZE-1 - k) * DATA_WIDTH +: DATA_WIDTH];
+                        data_queue[k * QUEUE_SIZE + i][0] <= sram_rdata_d[k][(QUEUE_SIZE-1 - i) * DATA_WIDTH +: DATA_WIDTH];
                     end
                 end
             end

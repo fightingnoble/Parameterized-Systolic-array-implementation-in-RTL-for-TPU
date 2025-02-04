@@ -1,6 +1,9 @@
 TPU/**
 tpu_new/**
 *.txt
+TPU/**
+tpu_new/**
+*.txt
 wlf*
 *.mpf
 *.bak
