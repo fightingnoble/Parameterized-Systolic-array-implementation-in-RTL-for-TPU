@@ -197,14 +197,14 @@ initial begin
 end
 */
 initial begin
-    $readmemb("bm/bm2/mat1.txt", mat1);
-    $readmemb("bm/bm2/mat2.txt", mat2);
+    $readmemb("bm/bm1/mat1.txt", mat1);
+    $readmemb("bm/bm1/mat2.txt", mat2);
 
 	// load golden data from goldeni.txt, 
     for (i = 0; i < BATCH_SIZE; i = i + 1) begin
         // 动态生成文件路径
         string file_path;
-        $sformat(file_path, "bm/bm2/golden%0d.txt", i + 1);
+        $sformat(file_path, "bm/bm1/golden%0d.txt", i + 1);
 
         // 读取文件数据到 golden_t
         $readmemb(file_path, golden_t);
@@ -214,9 +214,9 @@ initial begin
             golden[i * ARRAY_SIZE + j] = golden_t[j];
         end
     end
-    // $readmemb("bm/bm2/golden1.txt",golden1);
-    // $readmemb("bm/bm2/golden2.txt",golden2);
-    // $readmemb("bm/bm2/golden3.txt",golden3);
+    // $readmemb("bm/bm1/golden1.txt",golden1);
+    // $readmemb("bm/bm1/golden2.txt",golden2);
+    // $readmemb("bm/bm1/golden3.txt",golden3);
 
     #(`cycle_period);
     
@@ -355,30 +355,13 @@ task data2sram;
 	
 	sram_load[0].load_sram_j;
 	sram_load[1].load_sram_j;
-	// sram_load[2].load_sram_j;
-	// sram_load[3].load_sram_j;
-	// sram_load[4].load_sram_j;
-	// sram_load[5].load_sram_j;
-	// sram_load[6].load_sram_j;
-	// sram_load[7].load_sram_j;
 
 	weight_display[0].display_weight_j;
 	weight_display[1].display_weight_j;
-	// weight_display[2].display_weight_j;
-	// weight_display[3].display_weight_j;
-	// weight_display[4].display_weight_j;
-	// weight_display[5].display_weight_j;
-	// weight_display[6].display_weight_j;
-	// weight_display[7].display_weight_j;
 
 	data_display[0].display_data_j;
 	data_display[1].display_data_j;
-	// data_display[2].display_data_j;
-	// data_display[3].display_data_j;
-	// data_display[4].display_data_j;
-	// data_display[5].display_data_j;
-	// data_display[6].display_data_j;
-	// data_display[7].display_data_j;
+
   end
 endtask	
 

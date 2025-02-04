@@ -108,10 +108,17 @@ always@(posedge clk) begin
     end
 end
 
+// reg  matrix_mul_2D_isX [0:ARRAY_SIZE-1] [0:ARRAY_SIZE-1];     
+// reg  matrix_mul_row_isX [0:ARRAY_SIZE-1];     
+// reg  matrix_mul_isX; 
+
 always@(*) begin
     if(alu_start) begin         //based on the mul_row_num, decode how many row operations need to do
         for(i = 0; i < ARRAY_SIZE; i = i + 1) begin
+            // matrix_mul_isX = matrix_mul_isX ^ matrix_mul_row_isX[i];
             for(j = 0; j < ARRAY_SIZE; j = j + 1) begin
+                // matrix_mul_2D_isX[i][j] = ^matrix_mul_2D[i][j];
+                // matrix_mul_row_isX[i] = matrix_mul_row_isX[i] ^ matrix_mul_2D_isX[i][j];
                 //multiplication and adding
                 if( (cycle_num >= FIRST_OUT && (i + j) == (cycle_num - FIRST_OUT) % (2 * ARRAY_SIZE)) || (cycle_num >= PARALLEL_START && (i + j) == (cycle_num - PARALLEL_START) % (2 * ARRAY_SIZE)) ) begin
                     mul_result = weight_queue[i][j] * data_queue[i][j];

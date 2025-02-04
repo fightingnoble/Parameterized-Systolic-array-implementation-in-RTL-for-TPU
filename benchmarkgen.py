@@ -108,14 +108,18 @@ def main(args):
     binary_mat1 = matrix_to_binary_string(mat1.reshape(-1, array_size), A_nbit)
     binary_mat2 = matrix_to_binary_string(mat2.reshape(-1, array_size), B_nbit)
 
+    # mkdir
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        
+    # 保存为 Verilog 格式的文本文件
+    save_to_file(os.path.join(output_dir, 'mat1.txt'), binary_mat1, array_size, A_nbit)
+    save_to_file(os.path.join(output_dir, 'mat2.txt'), binary_mat2, array_size, B_nbit)
     for i in range(batch_size):
         # 保存结果
         binary_result = matrix_to_binary_string(result[i], C_nbit)
         save_to_file(os.path.join(output_dir, f'golden{i+1}.txt'), binary_result, array_size, C_nbit)
 
-    # 保存为 Verilog 格式的文本文件
-    save_to_file(os.path.join(output_dir, 'mat1.txt'), binary_mat1, array_size, A_nbit)
-    save_to_file(os.path.join(output_dir, 'mat2.txt'), binary_mat2, array_size, B_nbit)
 
     print("矩阵已保存为 mat1.txt 和 mat2.txt")
 
