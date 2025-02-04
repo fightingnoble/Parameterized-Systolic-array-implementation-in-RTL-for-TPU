@@ -3,20 +3,21 @@
 `include "param.v"
 module test_tpu;
 
+	localparam BATCH_SIZE = 3;
+    localparam ARRAY_SIZE = 8;
+	localparam SRAM_ADDR_WIDTH = 10;
+	localparam ADDR_WIDTH_MIN = $clog2(BATCH_SIZE*ARRAY_SIZE+3-1); //7;
+	localparam SRAM_DEPTH = 2**ADDR_WIDTH_MIN; //2**7
+	
     localparam DATA_WIDTH = 8; 
     localparam OUT_DATA_WIDTH = 16;
     localparam SRAM_DATA_WIDTH = 32;
     localparam WEIGHT_NUM = 25, WEIGHT_WIDTH = 8;
-    localparam ARRAY_SIZE = 8;
 	localparam QUEUE_SIZE = SRAM_DATA_WIDTH / DATA_WIDTH; // 4
     localparam QUEUE_COUNT = (ARRAY_SIZE + QUEUE_SIZE-1) / QUEUE_SIZE;
-	localparam SRAM_DEPTH = 128;
-	localparam SRAM_ADDR_WIDTH = 10;
-	localparam BATCH_SIZE = 3;
 	localparam CYCLE_MAX = 2*(ARRAY_SIZE)*BATCH_SIZE + ARRAY_SIZE + 1;
-	localparam CYCLE_BITS = 9;//$clog2(CYCLE_MAX);
-	localparam MATRIX_BITS = 6;//$clog2(2*ARRAY_SIZE-1);
-	localparam ADDR_WIDTH_MIN = 7; //$clog2(ADDR_MAX);
+	localparam CYCLE_BITS = $clog2(CYCLE_MAX); //9;
+	localparam MATRIX_BITS = $clog2(2*ARRAY_SIZE-1); //6;
 
     //====== module I/O =====
     reg clk;
@@ -196,14 +197,14 @@ initial begin
 end
 */
 initial begin
-    $readmemb("bm/bm1/mat1.txt", mat1);
-    $readmemb("bm/bm1/mat2.txt", mat2);
+    $readmemb("bm/bm2/mat1.txt", mat1);
+    $readmemb("bm/bm2/mat2.txt", mat2);
 
 	// load golden data from goldeni.txt, 
     for (i = 0; i < BATCH_SIZE; i = i + 1) begin
         // 动态生成文件路径
         string file_path;
-        $sformat(file_path, "bm/bm1/golden%0d.txt", i + 1);
+        $sformat(file_path, "bm/bm2/golden%0d.txt", i + 1);
 
         // 读取文件数据到 golden_t
         $readmemb(file_path, golden_t);
@@ -213,9 +214,9 @@ initial begin
             golden[i * ARRAY_SIZE + j] = golden_t[j];
         end
     end
-    // $readmemb("bm/bm1/golden1.txt",golden1);
-    // $readmemb("bm/bm1/golden2.txt",golden2);
-    // $readmemb("bm/bm1/golden3.txt",golden3);
+    // $readmemb("bm/bm2/golden1.txt",golden1);
+    // $readmemb("bm/bm2/golden2.txt",golden2);
+    // $readmemb("bm/bm2/golden3.txt",golden3);
 
     #(`cycle_period);
     
