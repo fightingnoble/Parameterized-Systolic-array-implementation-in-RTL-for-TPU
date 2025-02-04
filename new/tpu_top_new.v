@@ -3,7 +3,10 @@ module tpu_top#(
     parameter SRAM_DATA_WIDTH = 32,
     parameter DATA_WIDTH = 8,
     parameter OUTPUT_DATA_WIDTH = 16,
-    parameter QUEUE_COUNT = (ARRAY_SIZE + 3) / 4  // 计算所需队列数量
+    parameter QUEUE_COUNT = (ARRAY_SIZE + 3) / 4,  // 计算所需队列数量
+    parameter ADDR_MAX = 127,
+    parameter QUEUE_SIZE = 16,
+    parameter SRAM_ADDR_WIDTH = 10
 )
 (
     input clk,
@@ -60,7 +63,10 @@ wire [1:0] data_set;
 //----addr_sel module----
 addr_sel #(
     .ARRAY_SIZE(ARRAY_SIZE),
-    .QUEUE_COUNT(QUEUE_COUNT)
+    .QUEUE_COUNT(QUEUE_COUNT),
+    .ADDR_MAX(ADDR_MAX),
+    .QUEUE_SIZE(QUEUE_SIZE),
+    .ADDR_WIDTH(SRAM_ADDR_WIDTH)
 ) addr_sel_inst 
 (
     //input

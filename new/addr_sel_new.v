@@ -4,7 +4,7 @@ module addr_sel #(
     parameter ARRAY_SIZE = 8,
     parameter QUEUE_COUNT = (ARRAY_SIZE + 3) / 4,  // Calculate the number of required queues
     parameter ADDR_MAX = 127,
-    parameter ADDR_OFFSET = 4,
+    parameter QUEUE_SIZE = 4,
     parameter ADDR_WIDTH = 10
 ) (
     input clk,
@@ -35,9 +35,9 @@ end
 genvar k;
 generate
     for (k = 0; k < QUEUE_COUNT; k = k + 1) begin : addr_gen
-        localparam integer start_addr = k * ADDR_OFFSET;
-        localparam integer end_addr = 98 + k * ADDR_OFFSET;
-
+        localparam integer start_addr = k * QUEUE_SIZE;
+        localparam integer end_addr = 98 + k * QUEUE_SIZE;
+        // generate offset step 2: every 4 rows, shift 4 items to the right
         assign sram_raddr_w_nx[k] = (addr_serial_num >= start_addr && addr_serial_num <= end_addr)? { {3{1'd0}} , addr_serial_num - start_addr} : ADDR_MAX;
         assign sram_raddr_d_nx[k] = (addr_serial_num >= start_addr && addr_serial_num <= end_addr)? { {3{1'd0}} , addr_serial_num - start_addr} : ADDR_MAX;
     end

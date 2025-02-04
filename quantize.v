@@ -11,7 +11,7 @@ module quantize#(
 	output reg signed [ARRAY_SIZE*OUTPUT_DATA_WIDTH-1:0] quantized_data
 );
 
-localparam max_val = 32767,min_val = -32768;
+localparam max_val = 2**(OUTPUT_DATA_WIDTH-1)-1,min_val = -2**(OUTPUT_DATA_WIDTH-1);
 localparam ORI_WIDTH = DATA_WIDTH+DATA_WIDTH+5;
 
 reg signed [ORI_WIDTH-1:0] ori_shifted_data;
