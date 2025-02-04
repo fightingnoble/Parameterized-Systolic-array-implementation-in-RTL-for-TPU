@@ -40,7 +40,8 @@ module tpu_top#(
     output tpu_done
 );
 
-localparam ORI_WIDTH = DATA_WIDTH+DATA_WIDTH+5;
+localparam CUM_BITS_EXT = 5;
+localparam ORI_WIDTH = DATA_WIDTH+DATA_WIDTH+CUM_BITS_EXT;
 
 //----addr_sel parameter----
 wire [ADDR_WIDTH_MIN-1:0] addr_serial_num;
@@ -87,7 +88,8 @@ quantize #(
     .ARRAY_SIZE(ARRAY_SIZE),
     .SRAM_DATA_WIDTH(SRAM_DATA_WIDTH),
     .DATA_WIDTH(DATA_WIDTH),
-    .OUTPUT_DATA_WIDTH(OUTPUT_DATA_WIDTH)
+    .OUTPUT_DATA_WIDTH(OUTPUT_DATA_WIDTH),
+    .CUM_BITS_EXT(CUM_BITS_EXT)
 ) quantize_inst
 (
     //input
@@ -121,7 +123,11 @@ systolic #(
 
 //----systolic_controller module----
 systolic_controll  #(
-	.ARRAY_SIZE(ARRAY_SIZE)
+	.ARRAY_SIZE(ARRAY_SIZE), 
+    .ADDR_MAX(ADDR_MAX),
+    .CYCLE_BITS(CYCLE_BITS),
+    .MATRIX_BITS(MATRIX_BITS),
+    .ADDR_WIDTH_MIN(ADDR_WIDTH_MIN)
 ) systolic_controll
 (
 	//input
