@@ -2,7 +2,8 @@
 
 module write_out#(
 	parameter ARRAY_SIZE = 8,
-	parameter OUTPUT_DATA_WIDTH = 16
+	parameter OUTPUT_DATA_WIDTH = 16,
+	parameter MATRIX_BITS = 6 //$clog2(2*ARRAY_SIZE-1),
 )
 (
 	input clk,
@@ -10,21 +11,21 @@ module write_out#(
 	input sram_write_enable,
 
 	input [1:0] data_set,
-	input [5:0] matrix_index,
+	input [MATRIX_BITS-1:0] matrix_index,
 
 	input signed [ARRAY_SIZE*OUTPUT_DATA_WIDTH-1:0] quantized_data,
 	
 	output reg sram_write_enable_a0,
 	output reg [ARRAY_SIZE*OUTPUT_DATA_WIDTH-1:0] sram_wdata_a,
- 	output reg [5:0] sram_waddr_a,
+ 	output reg [MATRIX_BITS-1:0] sram_waddr_a,
 
 	output reg sram_write_enable_b0,
 	output reg [ARRAY_SIZE*OUTPUT_DATA_WIDTH-1:0] sram_wdata_b,
- 	output reg [5:0] sram_waddr_b,
+ 	output reg [MATRIX_BITS-1:0] sram_waddr_b,
 
 	output reg sram_write_enable_c0,
 	output reg [ARRAY_SIZE*OUTPUT_DATA_WIDTH-1:0] sram_wdata_c,
- 	output reg [5:0] sram_waddr_c
+ 	output reg [MATRIX_BITS-1:0] sram_waddr_c
 );
 
 integer i;
@@ -39,9 +40,9 @@ reg [ARRAY_SIZE*OUTPUT_DATA_WIDTH-1:0] sram_wdata_a_nx;
 reg [ARRAY_SIZE*OUTPUT_DATA_WIDTH-1:0] sram_wdata_b_nx;
 reg [ARRAY_SIZE*OUTPUT_DATA_WIDTH-1:0] sram_wdata_c_nx;
 
-reg [5:0] sram_waddr_a_nx;
-reg [5:0] sram_waddr_b_nx;
-reg [5:0] sram_waddr_c_nx;
+reg [MATRIX_BITS-1:0] sram_waddr_a_nx;
+reg [MATRIX_BITS-1:0] sram_waddr_b_nx;
+reg [MATRIX_BITS-1:0] sram_waddr_c_nx;
 
 //---sequential logic-----
 always@(posedge clk) begin

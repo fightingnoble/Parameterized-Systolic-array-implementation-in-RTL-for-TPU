@@ -3,10 +3,13 @@ module tpu_top#(
     parameter SRAM_DATA_WIDTH = 32,
     parameter DATA_WIDTH = 8,
     parameter OUTPUT_DATA_WIDTH = 16,
+    parameter QUEUE_SIZE = 4,
     parameter QUEUE_COUNT = (ARRAY_SIZE + 3) / 4,  // 计算所需队列数量
     parameter ADDR_MAX = 127,
-    parameter QUEUE_SIZE = 16,
-    parameter SRAM_ADDR_WIDTH = 10
+    parameter SRAM_ADDR_WIDTH = 10,
+	parameter CYCLE_BITS = 9, // $clog2(CYCLE_MAX),
+	parameter MATRIX_BITS = 6, //$clog2(2*ARRAY_SIZE-1),
+    parameter ADDR_WIDTH_MIN = 7 //$clog2(ADDR_MAX)
 )
 (
     input clk,
@@ -24,23 +27,25 @@ module tpu_top#(
     // Write to three SRAM for comparison
     output sram_write_enable_a0,
     output [ARRAY_SIZE*OUTPUT_DATA_WIDTH-1:0] sram_wdata_a,
-    output [5:0] sram_waddr_a,
+    output [MATRIX_BITS-1:0] sram_waddr_a,
 
     output sram_write_enable_b0,
     output [ARRAY_SIZE*OUTPUT_DATA_WIDTH-1:0] sram_wdata_b,
-    output [5:0] sram_waddr_b,
+    output [MATRIX_BITS-1:0] sram_waddr_b,
 
     output sram_write_enable_c0,
     output [ARRAY_SIZE*OUTPUT_DATA_WIDTH-1:0] sram_wdata_c,
-    output [5:0] sram_waddr_c,
+    output [MATRIX_BITS-1:0] sram_waddr_c,
     
     output tpu_done
 );
 
-localparam ORI_WIDTH = DATA_WIDTH+DATA_WIDTH+5;
+localparam CUM_BITS_EXT = $clog2(ARRAY_SIZE);
+localparam ORI_WIDTH = DATA_WIDTH+DATA_WIDTH+CUM_BITS_EXT;
+// localparam ADDR_WIDTH_MIN = $clog2(ADDR_MAX);
 
 //----addr_sel parameter----
-wire [6:0] addr_serial_num;
+wire [ADDR_WIDTH_MIN-1:0] addr_serial_num;
 
 //----quantized parameter----
 wire signed [ARRAY_SIZE*ORI_WIDTH-1:0] ori_data;
@@ -48,8 +53,8 @@ wire signed [ARRAY_SIZE*OUTPUT_DATA_WIDTH-1:0] quantized_data;
 
 //-----systolic parameter----
 wire alu_start;
-wire [8:0] cycle_num;
-wire [5:0] matrix_index;
+wire [CYCLE_BITS-1:0] cycle_num;
+wire [MATRIX_BITS-1:0] matrix_index;
 
 //----ststolic_controll parameter---
 wire sram_write_enable;
@@ -66,7 +71,8 @@ addr_sel #(
     .QUEUE_COUNT(QUEUE_COUNT),
     .ADDR_MAX(ADDR_MAX),
     .QUEUE_SIZE(QUEUE_SIZE),
-    .ADDR_WIDTH(SRAM_ADDR_WIDTH)
+    .ADDR_WIDTH(SRAM_ADDR_WIDTH),
+    .ADDR_WIDTH_MIN(ADDR_WIDTH_MIN)
 ) addr_sel_inst 
 (
     //input
@@ -83,7 +89,8 @@ quantize #(
     .ARRAY_SIZE(ARRAY_SIZE),
     .SRAM_DATA_WIDTH(SRAM_DATA_WIDTH),
     .DATA_WIDTH(DATA_WIDTH),
-    .OUTPUT_DATA_WIDTH(OUTPUT_DATA_WIDTH)
+    .OUTPUT_DATA_WIDTH(OUTPUT_DATA_WIDTH),
+    .CUM_BITS_EXT(CUM_BITS_EXT)
 ) quantize_inst
 (
     //input
@@ -97,7 +104,12 @@ quantize #(
 systolic #(
     .ARRAY_SIZE(ARRAY_SIZE),
     .SRAM_DATA_WIDTH(SRAM_DATA_WIDTH),
-    .DATA_WIDTH(DATA_WIDTH)
+    .DATA_WIDTH(DATA_WIDTH),
+    .QUEUE_SIZE(QUEUE_SIZE),
+    .QUEUE_COUNT(QUEUE_COUNT),
+    .CYCLE_BITS(CYCLE_BITS),
+    .MATRIX_BITS(MATRIX_BITS),
+    .CUM_BITS_EXT(CUM_BITS_EXT)
 ) systolic_inst
 (
     //input
@@ -117,7 +129,11 @@ systolic #(
 
 //----systolic_controller module----
 systolic_controll  #(
-	.ARRAY_SIZE(ARRAY_SIZE)
+	.ARRAY_SIZE(ARRAY_SIZE), 
+    .ADDR_MAX(ADDR_MAX),
+    .CYCLE_BITS(CYCLE_BITS),
+    .MATRIX_BITS(MATRIX_BITS),
+    .ADDR_WIDTH_MIN(ADDR_WIDTH_MIN)
 ) systolic_controll
 (
 	//input
@@ -138,7 +154,8 @@ systolic_controll  #(
 //----write_out module----
 write_out #(
 	.ARRAY_SIZE(ARRAY_SIZE),
-	.OUTPUT_DATA_WIDTH(OUTPUT_DATA_WIDTH)
+	.OUTPUT_DATA_WIDTH(OUTPUT_DATA_WIDTH),
+    .MATRIX_BITS(MATRIX_BITS)
 ) write_out
 (
 	//input

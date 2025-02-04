@@ -5,10 +5,11 @@ module addr_sel #(
     parameter QUEUE_COUNT = (ARRAY_SIZE + 3) / 4,  // Calculate the number of required queues
     parameter ADDR_MAX = 127,
     parameter QUEUE_SIZE = 4,
-    parameter ADDR_WIDTH = 10
+    parameter ADDR_WIDTH = 10,
+    parameter ADDR_WIDTH_MIN = 7//$clog2(ADDR_MAX)
 ) (
     input clk,
-    input [6:0] addr_serial_num,
+    input [ADDR_WIDTH_MIN-1:0] addr_serial_num,
 
     // Packed output addresses for weight queues
     output [(QUEUE_COUNT * ADDR_WIDTH) - 1:0] sram_raddr_w_packed,
@@ -38,8 +39,8 @@ generate
         localparam integer start_addr = k * QUEUE_SIZE;
         localparam integer end_addr = 98 + k * QUEUE_SIZE;
         // generate offset step 2: every 4 rows, shift 4 items to the right
-        assign sram_raddr_w_nx[k] = (addr_serial_num >= start_addr && addr_serial_num <= end_addr)? { {3{1'd0}} , addr_serial_num - start_addr} : ADDR_MAX;
-        assign sram_raddr_d_nx[k] = (addr_serial_num >= start_addr && addr_serial_num <= end_addr)? { {3{1'd0}} , addr_serial_num - start_addr} : ADDR_MAX;
+        assign sram_raddr_w_nx[k] = (addr_serial_num >= start_addr && addr_serial_num <= end_addr)? { {(ADDR_WIDTH-ADDR_WIDTH_MIN){1'd0}} , addr_serial_num - start_addr} : ADDR_MAX;
+        assign sram_raddr_d_nx[k] = (addr_serial_num >= start_addr && addr_serial_num <= end_addr)? { {(ADDR_WIDTH-ADDR_WIDTH_MIN){1'd0}} , addr_serial_num - start_addr} : ADDR_MAX;
     end
 endgenerate
 
