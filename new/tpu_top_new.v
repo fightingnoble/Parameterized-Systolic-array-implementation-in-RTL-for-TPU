@@ -40,8 +40,9 @@ module tpu_top#(
     output tpu_done
 );
 
-localparam CUM_BITS_EXT = 5;
+localparam CUM_BITS_EXT = $clog2(ARRAY_SIZE);
 localparam ORI_WIDTH = DATA_WIDTH+DATA_WIDTH+CUM_BITS_EXT;
+// localparam ADDR_WIDTH_MIN = $clog2(ADDR_MAX);
 
 //----addr_sel parameter----
 wire [ADDR_WIDTH_MIN-1:0] addr_serial_num;
@@ -103,7 +104,12 @@ quantize #(
 systolic #(
     .ARRAY_SIZE(ARRAY_SIZE),
     .SRAM_DATA_WIDTH(SRAM_DATA_WIDTH),
-    .DATA_WIDTH(DATA_WIDTH)
+    .DATA_WIDTH(DATA_WIDTH),
+    .QUEUE_SIZE(QUEUE_SIZE),
+    .QUEUE_COUNT(QUEUE_COUNT),
+    .CYCLE_BITS(CYCLE_BITS),
+    .MATRIX_BITS(MATRIX_BITS),
+    .CUM_BITS_EXT(CUM_BITS_EXT)
 ) systolic_inst
 (
     //input
