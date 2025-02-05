@@ -1,153 +1,44 @@
 `timescale 1ns/100ps
 
 `include "param.v"
-module test_tpu;
+module test_tpu16x16;
 
-	localparam BATCH_SIZE = 3;
-    localparam ARRAY_SIZE = 32;
+    localparam ARRAY_SIZE = 16;
 	localparam SRAM_ADDR_WIDTH = 10;
-	localparam ADDR_WIDTH_MIN = $clog2(BATCH_SIZE*ARRAY_SIZE+3-1); //7;
-	localparam SRAM_DEPTH = 2**ADDR_WIDTH_MIN; //2**7
+    localparam SRAM_DATA_WIDTH = 32;
 	
+	localparam BATCH_SIZE = 3;
     localparam DATA_WIDTH = 8; 
     localparam OUT_DATA_WIDTH = 16;
-    localparam SRAM_DATA_WIDTH = 32;
-    localparam WEIGHT_NUM = 25, WEIGHT_WIDTH = 8;
+    localparam WEIGHT_WIDTH = 8;
+
+	localparam ADDR_WIDTH_MIN = $clog2(BATCH_SIZE*ARRAY_SIZE+3-1); //7;
+	localparam SRAM_DEPTH = 2**ADDR_WIDTH_MIN; //2**7
 	localparam QUEUE_SIZE = SRAM_DATA_WIDTH / DATA_WIDTH; // 4
     localparam QUEUE_COUNT = (ARRAY_SIZE + QUEUE_SIZE-1) / QUEUE_SIZE;
-	localparam CYCLE_MAX = 2*(ARRAY_SIZE)*BATCH_SIZE + ARRAY_SIZE + 1;
-	localparam CYCLE_BITS = $clog2(CYCLE_MAX); //9;
 	localparam MATRIX_BITS = $clog2(2*ARRAY_SIZE-1); //6;
 
     //====== module I/O =====
     reg clk;
     reg srstn;
     reg tpu_start;
-
     wire tpu_finish;
 
-	// unused signals
-	wire [3:0] sram_bytemask_a;
-	wire [3:0] sram_bytemask_b;
-	wire [SRAM_ADDR_WIDTH-1:0] sram_waddr_a;
-	wire [SRAM_ADDR_WIDTH-1:0] sram_waddr_b;
-	wire [SRAM_DATA_WIDTH-1:0] sram_wdata_a;
-	wire [SRAM_DATA_WIDTH-1:0] sram_wdata_b;
-
-	wire [MATRIX_BITS-1:0] sram_raddr_c [0:2];
-	wire [ARRAY_SIZE*OUT_DATA_WIDTH-1:0] sram_rdata_c [0:2];
-	// ===================================
-    wire [ARRAY_SIZE*OUT_DATA_WIDTH-1:0] sram_wdata_c [0:2];
-    wire [MATRIX_BITS-1:0] sram_waddr_c [0:2];
-    wire sram_write_enable_c [0:2];
-
-    wire [(QUEUE_COUNT * SRAM_DATA_WIDTH) - 1:0] sram_rdata_w_packed;
-    wire [(QUEUE_COUNT * SRAM_DATA_WIDTH) - 1:0] sram_rdata_d_packed;
-    wire [(QUEUE_COUNT * SRAM_ADDR_WIDTH) - 1:0] sram_raddr_w_packed;
-    wire [(QUEUE_COUNT * SRAM_ADDR_WIDTH) - 1:0] sram_raddr_d_packed;
-
-    wire signed [DATA_WIDTH-1:0] out;
-
     //====== top connection =====
-
-    // tpu_top instance
-    tpu_top #(
-       .ARRAY_SIZE(ARRAY_SIZE),
-       .SRAM_DATA_WIDTH(SRAM_DATA_WIDTH),
-       .DATA_WIDTH(DATA_WIDTH),
-       .OUTPUT_DATA_WIDTH(OUT_DATA_WIDTH),
-       .QUEUE_COUNT(QUEUE_COUNT),
-	   .ADDR_MAX(SRAM_DEPTH-1),
-	   .QUEUE_SIZE(QUEUE_SIZE),
-	   .SRAM_ADDR_WIDTH(SRAM_ADDR_WIDTH),
-	   .CYCLE_BITS(CYCLE_BITS),
-	   .MATRIX_BITS(MATRIX_BITS),
-	   .ADDR_WIDTH_MIN(ADDR_WIDTH_MIN)
-    ) my_tpu_top (
-       .clk(clk),
-       .srstn(srstn),
-       .tpu_start(tpu_start),
-
-		//input data
-       .sram_rdata_w_packed(sram_rdata_w_packed),
-
-       .sram_rdata_d_packed(sram_rdata_d_packed),
-
-		//output weight
-       .sram_raddr_w_packed(sram_raddr_w_packed),
-
-       .sram_raddr_d_packed(sram_raddr_d_packed),
-
-	//write to the SRAM for comparision
-       .sram_write_enable_a0(sram_write_enable_c[0]),
-       .sram_wdata_a(sram_wdata_c[0]),
-       .sram_waddr_a(sram_waddr_c[0]),
-
-       .sram_write_enable_b0(sram_write_enable_c[1]),
-       .sram_wdata_b(sram_wdata_c[1]),
-       .sram_waddr_b(sram_waddr_c[1]),
-
-       .sram_write_enable_c0(sram_write_enable_c[2]),
-       .sram_wdata_c(sram_wdata_c[2]),
-       .sram_waddr_c(sram_waddr_c[2]),
-
-       .tpu_done(tpu_finish)
-    );
-
-	genvar unpk_idx;
-    // Generate SRAM instances for weight data	sram_128x32b
-	simple_sram #(
-		.DATA_WIDTH(SRAM_DATA_WIDTH),
-		.ADDR_WIDTH(SRAM_ADDR_WIDTH),
-		.DEPTH(SRAM_DEPTH)
-		) weight_sram_gen[QUEUE_COUNT-1:0] (
+	tpu_top_wrap #(
+		.ARRAY_SIZE(ARRAY_SIZE),
+		.SRAM_DATA_WIDTH(SRAM_DATA_WIDTH),
+		.SRAM_ADDR_WIDTH(SRAM_ADDR_WIDTH),
+		.BATCH_SIZE(BATCH_SIZE),
+		.DATA_WIDTH(DATA_WIDTH),
+		.WEIGHT_WIDTH(WEIGHT_WIDTH),
+		.OUT_DATA_WIDTH(OUT_DATA_WIDTH)
+	)my_tpu_top_wrap (
 		.clk(clk),
-		// .bytemask(sram_bytemask_a),
-		.csb(1'b0),
-		.wsb(1'b1), // Assume not writing for simplicity, adjust as needed
-		.raddr(sram_raddr_w_packed), 
-		.rdata(sram_rdata_w_packed),
-		.waddr(sram_waddr_a), 
-		.wdata(sram_wdata_a)
-		);
-
-
-	// Generate SRAM instances for input data sram_128x32b
-	simple_sram #(
-		.DATA_WIDTH(SRAM_DATA_WIDTH),
-		.ADDR_WIDTH(SRAM_ADDR_WIDTH),
-		.DEPTH(SRAM_DEPTH)
-	) input_sram_gen[QUEUE_COUNT-1:0] (
-		.clk(clk),
-		// .bytemask(sram_bytemask_b),
-		.csb(1'b0),
-		.wsb(1'b1), // Assume not writing for simplicity, adjust as needed
-		.raddr(sram_raddr_d_packed), 
-		.rdata(sram_rdata_d_packed), 
-		.waddr(sram_waddr_b), 
-		.wdata(sram_wdata_b) 
-		);
-
-	// Generate SRAM instances for output data sram_16x128b
-    generate
-		genvar batch_idx;
-        for (batch_idx = 0; batch_idx < BATCH_SIZE; batch_idx = batch_idx + 1) begin: output_sram_gen
-			simple_sram #(
-				.DATA_WIDTH(ARRAY_SIZE*OUT_DATA_WIDTH),
-				.ADDR_WIDTH(MATRIX_BITS),
-				.DEPTH(ARRAY_SIZE*2) // original 16
-			) sram_16x128b_c (
-				.clk(clk),
-				.csb(1'b0),
-				.wsb(sram_write_enable_c[batch_idx]),
-				.wdata(sram_wdata_c[batch_idx]), 
-				.waddr(sram_waddr_c[batch_idx]), 
-				.raddr(sram_raddr_c[batch_idx]), 
-				.rdata(sram_rdata_c[batch_idx])
-			);
-        end
-    endgenerate
-
+		.srstn(srstn),
+		.tpu_start(tpu_start),
+		.tpu_finish(tpu_finish)
+	);
 
 //dump wave file
 // initial begin
@@ -167,10 +58,9 @@ end
 
 //====== main procedural block for simulation =====
 integer cycle_cnt;
-
-
 integer i,j,k;
 integer type_idx_verify;
+genvar unpk_idx;
 
 reg [ARRAY_SIZE*DATA_WIDTH-1:0] mat1[0:ARRAY_SIZE*BATCH_SIZE-1];
 reg [ARRAY_SIZE*DATA_WIDTH-1:0] mat2[0:ARRAY_SIZE*BATCH_SIZE-1];
@@ -197,14 +87,14 @@ initial begin
 end
 */
 initial begin
-    $readmemb("bm/bm3/mat1.txt", mat1);
-    $readmemb("bm/bm3/mat2.txt", mat2);
+    $readmemb("bm/bm2/mat1.txt", mat1);
+    $readmemb("bm/bm2/mat2.txt", mat2);
 
 	// load golden data from goldeni.txt, 
     for (i = 0; i < BATCH_SIZE; i = i + 1) begin
         // 动态生成文件路径
         string file_path;
-        $sformat(file_path, "bm/bm3/golden%0d.txt", i + 1);
+        $sformat(file_path, "bm/bm2/golden%0d.txt", i + 1);
 
         // 读取文件数据到 golden_t
         $readmemb(file_path, golden_t);
@@ -214,9 +104,9 @@ initial begin
             golden[i * ARRAY_SIZE + j] = golden_t[j];
         end
     end
-    // $readmemb("bm/bm3/golden1.txt",golden1);
-    // $readmemb("bm/bm3/golden2.txt",golden2);
-    // $readmemb("bm/bm3/golden3.txt",golden3);
+    // $readmemb("bm/bm2/golden1.txt",golden1);
+    // $readmemb("bm/bm2/golden2.txt",golden2);
+    // $readmemb("bm/bm2/golden3.txt",golden3);
 
     #(`cycle_period);
     
@@ -254,10 +144,10 @@ initial begin
 		$display("Verifying output data for #c%0d", 0);
 		$display("-");
 		for (i = 0; i < (ARRAY_SIZE*2 - 1); i = i + 1) begin
-			if (trans_golden[i+0*(ARRAY_SIZE*2-1)] == output_sram_gen[0].sram_16x128b_c.mem[i]) begin
+			if (trans_golden[i+0*(ARRAY_SIZE*2-1)] == my_tpu_top_wrap.output_sram_gen[0].sram_16x128b_c.mem[i]) begin
 				$write("sram #c%0d address: %0d PASS!!\n", 0, i[MATRIX_BITS-1:0]);
 			end else begin
-				print_error_info(i[MATRIX_BITS-1:0], output_sram_gen[0].sram_16x128b_c.mem[i], trans_golden[i+0*(ARRAY_SIZE*2-1)]);
+				print_error_info(i[MATRIX_BITS-1:0], my_tpu_top_wrap.output_sram_gen[0].sram_16x128b_c.mem[i], trans_golden[i+0*(ARRAY_SIZE*2-1)]);
 				$finish;
 			end
 		end
@@ -265,10 +155,10 @@ initial begin
 		$display("Verifying output data for #c%0d", 1);
 		$display("-");
 		for (i = 0; i < (ARRAY_SIZE*2 - 1); i = i + 1) begin
-			if (trans_golden[i+1*(ARRAY_SIZE*2-1)] == output_sram_gen[1].sram_16x128b_c.mem[i]) begin
+			if (trans_golden[i+1*(ARRAY_SIZE*2-1)] == my_tpu_top_wrap.output_sram_gen[1].sram_16x128b_c.mem[i]) begin
 				$write("sram #c%0d address: %0d PASS!!\n", 1, i[MATRIX_BITS-1:0]);
 			end else begin
-				print_error_info(i[MATRIX_BITS-1:0], output_sram_gen[1].sram_16x128b_c.mem[i], trans_golden[i+1*(ARRAY_SIZE*2-1)]);
+				print_error_info(i[MATRIX_BITS-1:0], my_tpu_top_wrap.output_sram_gen[1].sram_16x128b_c.mem[i], trans_golden[i+1*(ARRAY_SIZE*2-1)]);
 				$finish;
 			end
 		end
@@ -276,10 +166,10 @@ initial begin
 		$display("Verifying output data for #c%0d", 2);
 		$display("-");
 		for (i = 0; i < (ARRAY_SIZE*2 - 1); i = i + 1) begin
-			if (trans_golden[i+2*(ARRAY_SIZE*2-1)] == output_sram_gen[2].sram_16x128b_c.mem[i]) begin
+			if (trans_golden[i+2*(ARRAY_SIZE*2-1)] == my_tpu_top_wrap.output_sram_gen[2].sram_16x128b_c.mem[i]) begin
 				$write("sram #c%0d address: %0d PASS!!\n", 2, i[MATRIX_BITS-1:0]);
 			end else begin
-				print_error_info(i[MATRIX_BITS-1:0], output_sram_gen[2].sram_16x128b_c.mem[i], trans_golden[i+2*(ARRAY_SIZE*2-1)]);
+				print_error_info(i[MATRIX_BITS-1:0], my_tpu_top_wrap.output_sram_gen[2].sram_16x128b_c.mem[i], trans_golden[i+2*(ARRAY_SIZE*2-1)]);
 				$finish;
 			end
 		end
@@ -357,28 +247,17 @@ task data2sram;
 	sram_load[1].load_sram_j;
 	sram_load[2].load_sram_j;
 	sram_load[3].load_sram_j;
-	sram_load[4].load_sram_j;
-	sram_load[5].load_sram_j;
-	sram_load[6].load_sram_j;
-	sram_load[7].load_sram_j;
 
 	weight_display[0].display_weight_j;
 	weight_display[1].display_weight_j;
 	weight_display[2].display_weight_j;
 	weight_display[3].display_weight_j;
-	weight_display[4].display_weight_j;
-	weight_display[5].display_weight_j;
-	weight_display[6].display_weight_j;
-	weight_display[7].display_weight_j;
 
 	data_display[0].display_data_j;
 	data_display[1].display_data_j;
 	data_display[2].display_data_j;
 	data_display[3].display_data_j;
-	data_display[4].display_data_j;
-	data_display[5].display_data_j;
-	data_display[6].display_data_j;
-	data_display[7].display_data_j;
+
   end
 endtask	
 
@@ -400,8 +279,8 @@ generate
                         sram_weight = {SRAM_ADDR_WIDTH{1'b0}};
                     end
 
-                    weight_sram_gen[unpk_idx].char2sram(i, sram_weight);
-                    input_sram_gen[unpk_idx].char2sram(i, sram_data);
+                    my_tpu_top_wrap.weight_sram_gen[unpk_idx].char2sram(i, sram_weight);
+                    my_tpu_top_wrap.input_sram_gen[unpk_idx].char2sram(i, sram_data);
                 end
             end
         endtask
@@ -415,7 +294,7 @@ generate
 		for(i = 0; i < SRAM_DEPTH; i=i+1)begin
 			$write("SRAM at address %0d is \n", i);
 			for (k=0; k<QUEUE_SIZE; k=k+1) begin
-				$write("%0d ", $signed(weight_sram_gen[unpk_idx].mem[i][(QUEUE_SIZE-1-k)*WEIGHT_WIDTH +: WEIGHT_WIDTH]));
+				$write("%0d ", $signed(my_tpu_top_wrap.weight_sram_gen[unpk_idx].mem[i][(QUEUE_SIZE-1-k)*WEIGHT_WIDTH +: WEIGHT_WIDTH]));
 			end
 			$write("\n");
 		end
@@ -430,7 +309,7 @@ generate
 		for(i = 0; i < SRAM_DEPTH; i=i+1)begin
 			$write("SRAM at address %0d is \n", i);
 			for (k=0; k<QUEUE_SIZE; k=k+1) begin
-				$write("%0d ", $signed(input_sram_gen[unpk_idx].mem[i][(QUEUE_SIZE-1-k)*DATA_WIDTH +: DATA_WIDTH]));
+				$write("%0d ", $signed(my_tpu_top_wrap.input_sram_gen[unpk_idx].mem[i][(QUEUE_SIZE-1-k)*DATA_WIDTH +: DATA_WIDTH]));
 			end
 			$write("\n");
 		end
